@@ -9,6 +9,7 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
+import { FileServiceProvider } from './services/file-service.provider';
 
 export class BithomeFrameServerApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -27,6 +28,8 @@ export class BithomeFrameServerApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+
+    this.bind('file.provider').toProvider(FileServiceProvider);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

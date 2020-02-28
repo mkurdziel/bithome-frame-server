@@ -1,0 +1,6 @@
+{
+  "name": "filesystem",
+  "connector": "loopback-component-storage",
+  "provider": "filesystem",
+  "root": "./bithome-frame-server/public/storage"
+}
