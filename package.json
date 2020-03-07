@@ -69,6 +69,7 @@
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-eslint-plugin": "^2.2.1",
     "eslint-plugin-mocha": "^6.3.0",
+    "exifreader": "^2.13.1",
     "source-map-support": "^0.5.16",
     "typescript": "~3.8.3"
   }
