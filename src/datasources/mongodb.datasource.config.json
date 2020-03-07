@@ -1,11 +1,11 @@
 {
   "name": "mongodb",
   "connector": "mongodb",
-  "url": "",
+  "url": "mongodb://localhost:27017/bithomeFrameDB",
   "host": "localhost",
   "port": 27017,
   "user": "",
   "password": "",
-  "database": "bithomeFrame",
+  "database": "bithomeFrameDB",
   "useNewUrlParser": true
 }
