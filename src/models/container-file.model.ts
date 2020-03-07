@@ -1,12 +1,7 @@
 import {Model, model, property} from '@loopback/repository';
 
 @model()
-export class Container extends Model {
-
-  constructor(data?: Partial<Container>) {
-    super(data);
-  }
-
+export class ContainerFile extends Model {
   @property({
     type: 'string',
     required: true,
@@ -20,14 +15,9 @@ export class Container extends Model {
   container: string;
 
   @property({
-    type: 'array',
-  })
-  files: File[];
-
-  @property({
     type: 'number',
   })
-  size?: number;
+  size: number;
 
   @property({
     type: 'date',
@@ -45,10 +35,13 @@ export class Container extends Model {
   ctime?: string;
 
 
+  constructor(data?: Partial<ContainerFile>) {
+    super(data);
+  }
 }
 
-export interface ContainerRelations {
+export interface ContainerFileRelations {
   // describe navigational properties here
 }
 
-export type ContainerWithRelations = Container & ContainerRelations;
+export type ContainerFileWithRelations = ContainerFile & ContainerFileRelations;
