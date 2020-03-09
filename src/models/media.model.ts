@@ -72,6 +72,7 @@ export class Media extends Entity {
   })
   created?: string;
 
+  url?: string;
 
   constructor(data?: Partial<Media>) {
     super(data);

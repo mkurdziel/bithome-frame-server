@@ -20,6 +20,8 @@ import {
 } from '@loopback/rest';
 import {Media} from '../models';
 import {MediaRepository} from '../repositories';
+import {intercept} from '@loopback/context';
+import {MediaUrlInterceptor} from '../interceptors';
 
 export class MediaController {
   constructor(
@@ -73,7 +75,7 @@ export class MediaController {
       },
     },
   })
-  
+  @intercept(MediaUrlInterceptor.BINDING_KEY)
   async random(): Promise<Media> {
     return this.mediaRepository.random();
   }

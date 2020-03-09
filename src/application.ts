@@ -12,7 +12,7 @@ import {MySequence} from './sequence';
 import {FileServiceProvider} from './services/file-service.provider';
 import {MediaService} from './services/media.service';
 
-import {MEDIA_SERVICE} from './keys';
+import {MEDIA_SERVICE, KEY_REST_SERVER} from './keys';
 
 export class BithomeFrameServerApplication extends BootMixin(
     ServiceMixin(RepositoryMixin(RestApplication)),
@@ -33,6 +33,7 @@ export class BithomeFrameServerApplication extends BootMixin(
         this.component(RestExplorerComponent);
 
         this.bind('file.provider').toProvider(FileServiceProvider);
+        this.bind(KEY_REST_SERVER).to(this.restServer);
         this.add(createBindingFromClass(MediaService, {key: MEDIA_SERVICE}));
 
         this.projectRoot = __dirname;
