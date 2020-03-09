@@ -1,10 +1,14 @@
 import {bind, /* inject, */ BindingScope, service} from '@loopback/core';
 import {FileService} from './file.service';
 import {inject} from '@loopback/context';
-import {Container, ContainerFile} from '../models';
+import {Container, ContainerFile, Media} from '../models';
 import debugFactory from 'debug';
 import async, {ErrorCallback} from 'async';
-import ExifReader from 'exifreader';
+import ExifReader, {NumberArrayTag} from 'exifreader';
+import {repository} from '@loopback/repository';
+import {MediaRepository} from '../repositories';
+import * as crypto from 'crypto';
+
 
 const debug = debugFactory('bithome:frame:media-service');
 
@@ -19,9 +23,8 @@ export class MediaService {
     private timer: NodeJS.Timer;
     private refreshIntervalMs: number = 1 * 60 * 1000;
 
-
-
-    constructor(@inject('file.provider') private fileService: FileService) {
+    constructor(@inject('file.provider') private fileService: FileService,
+                @repository(MediaRepository) public mediaRepository: MediaRepository) {
     }
 
     /**
@@ -33,11 +36,13 @@ export class MediaService {
 
         debug('Refresh Interval: %d', this.refreshIntervalMs);
 
+        await this.clearData();
+
         await this.refresh();
 
-        this.timer = setInterval(() => {
-            this.refresh();
-        }, this.refreshIntervalMs);
+        // this.timer = setInterval(() => {
+        //     this.refresh();
+        // }, this.refreshIntervalMs);
     }
 
     /**
@@ -50,6 +55,12 @@ export class MediaService {
         //   clearInterval(this.timer);
         // }
         // await this.clear();
+    }
+
+    async clearData() {
+        debug('Clearing media repository...');
+
+        await this.mediaRepository.deleteAll();
     }
 
     /**
@@ -120,8 +131,15 @@ export class MediaService {
                 debug('Refreshing media file: %s', file.name);
                 const fileStream = this.fileService.downloadStream(file.container, file.name);
                 let chunks: Uint8Array[] = [];
+                let hash = crypto.createHash('md5');
 
                 fileStream.once('end', () => {
+                    const media = new Media();
+                    media.type = 'image';
+                    media.file = file.name;
+                    media.container = file.container;
+                    media.checksum = hash.digest('hex');
+
                     const tags = ExifReader.load(Buffer.concat(chunks));
                     const lat = tags['GPSLatitude'];
                     const latRef = tags['GPSLatitudeRef'];
@@ -138,11 +156,38 @@ export class MediaService {
                             lngNum *= -1;
                         }
                         debug('GPS:  %d,%d', latNum, lngNum);
+                        media.latitude = latNum;
+                        media.longitude = lngNum;
                     }
-                    resolve();
+
+                    const keywords: NumberArrayTag = tags['Keywords'];
+                    if (keywords) {
+                        media.keywords = [];
+                        if (Array.isArray(keywords)) {
+                            const keywordsArray: NumberArrayTag[] = keywords as NumberArrayTag[];
+                            keywordsArray.forEach((keyword: NumberArrayTag) => {
+                                debug(keyword.description);
+                                media.keywords?.push(keyword.description);
+                            });
+                        } else {
+                            debug(keywords.description);
+                            media.keywords?.push(keywords.description);
+                        }
+                    }
+
+                    // Create the media entry
+                    this.mediaRepository.create(media).then((result: any) => {
+                        debug('%s created successfully', media.file);
+                        resolve();
+                    }).catch((reason: any) => {
+                        debug('ERROR: %s not created: %s', media.file, reason);
+                        resolve(reason);
+                    });
+
                 });
 
-                fileStream.on('data', (chunk: Uint8Array) => {
+                fileStream.on('data', (chunk: any) => {
+                    hash.update(chunk, 'utf8');
                     chunks.push(chunk);
                 });
 

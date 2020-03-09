@@ -13,6 +13,12 @@ export class Media extends Entity {
     type: 'string',
     required: true,
   })
+  container: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   file: string;
 
   @property({
@@ -20,6 +26,18 @@ export class Media extends Entity {
     required: true,
   })
   type: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  title?: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  description?: string;
 
   @property({
     type: 'number',
@@ -35,13 +53,24 @@ export class Media extends Entity {
     type: 'array',
     itemType: 'string',
   })
-  tags?: string[];
+  keywords?: string[];
+
+  @property({
+    type: 'array',
+    itemType: 'string',
+  })
+  persons?: string[];
 
   @property({
     type: 'string',
     required: true,
   })
   checksum: string;
+
+  @property({
+    type: 'date',
+  })
+  created?: string;
 
 
   constructor(data?: Partial<Media>) {

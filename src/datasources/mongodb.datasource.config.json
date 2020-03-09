@@ -7,5 +7,6 @@
   "user": "",
   "password": "",
   "database": "bithomeFrameDB",
-  "useNewUrlParser": true
+  "useNewUrlParser": true,
+  "enableGeoIndexing": true
 }
