@@ -65,6 +65,19 @@ export class MediaController {
     return this.mediaRepository.count(where);
   }
 
+  @get('/media/random', {
+    responses: {
+      '200': {
+        description: 'Random media selection',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  
+  async random(): Promise<Media> {
+    return this.mediaRepository.random();
+  }
+
   @get('/media', {
     responses: {
       '200': {

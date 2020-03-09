@@ -4,11 +4,11 @@ import {inject} from '@loopback/context';
 import {Container, ContainerFile, Media} from '../models';
 import debugFactory from 'debug';
 import async, {ErrorCallback} from 'async';
-import ExifReader, {NumberArrayTag} from 'exifreader';
+import ExifReader, {NumberArrayTag, XmpTag} from 'exifreader';
 import {repository} from '@loopback/repository';
 import {MediaRepository} from '../repositories';
 import * as crypto from 'crypto';
-
+import moment from 'moment';
 
 const debug = debugFactory('bithome:frame:media-service');
 
@@ -101,7 +101,7 @@ export class MediaService {
                             .then(() => {
                                 callback(null);
                             })
-                            .catch((err)=> {
+                            .catch((err) => {
                                 callback(err);
                             });
                     }, (err) => {
@@ -149,10 +149,10 @@ export class MediaService {
                         let latNum: number = parseFloat(lat.description);
                         let lngNum: number = parseFloat(lng.description);
 
-                        if (latRef.value[0] ===  'S') {
+                        if (latRef.value[0] === 'S') {
                             latNum *= -1;
                         }
-                        if (lngRef.value[0] ===  'W') {
+                        if (lngRef.value[0] === 'W') {
                             lngNum *= -1;
                         }
                         debug('GPS:  %d,%d', latNum, lngNum);
@@ -173,6 +173,31 @@ export class MediaService {
                             debug(keywords.description);
                             media.keywords?.push(keywords.description);
                         }
+                    }
+
+                    const persons = tags['PersonInImage'];
+                    if (persons) {
+                        media.persons = [];
+                        persons.value.forEach((person: XmpTag) => {
+                            debug(person.description);
+                            media.persons?.push(person.description);
+                        });
+                    }
+
+                    const dateCreated = tags['DateTimeOriginal'];
+                    if (dateCreated) {
+                        const momentDate = moment(dateCreated.description, 'YYYY-MM-DDTHH:mm:ss+-HH:mm');
+                        media.created = momentDate.toISOString();
+                    }
+
+                    const title = tags['title'];
+                    if (title) {
+                        media.title = title.description;
+                    }
+
+                    const description = tags['description'];
+                    if (description) {
+                        media.description = description.description;
                     }
 
                     // Create the media entry
