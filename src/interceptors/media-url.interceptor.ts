@@ -39,18 +39,24 @@ export class MediaUrlInterceptor implements Provider<Interceptor> {
      */
     async intercept(
         invocationCtx: InvocationContext,
-        next: () => ValueOrPromise<Media[]>,
+        next: () => ValueOrPromise<InvocationResult>,
     ) {
         try {
             // Add pre-invocation logic here
             const result = await next();
 
             // Add post-invocation logic here
-            result.forEach((media: Media) => {
-                if (media.container && media.file) {
-                    media.url = this.restServer.url + '/download/' + media.container + '/' + media.file;
+            if (Array.isArray(result)) {
+                result.forEach((media: Media) => {
+                    if (media.container && media.file) {
+                        media.url = this.restServer.url + '/download/' + media.container + '/' + media.file;
+                    }
+                });
+            } else {
+                if (result.container && result.file) {
+                    result.url = this.restServer.url + '/download/' + result.container + '/' + result.file;
                 }
-            });
+            }
 
             return result;
         } catch (err) {

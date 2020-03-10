@@ -14,9 +14,20 @@ export class MediaRepository extends DefaultCrudRepository<Media,
 
     async random(): Promise<Media> {
         const mediaCollection = (this.dataSource.connector as any).collection("Media");
-        return await mediaCollection
-            .aggregate([
-                {$sample: {size: 1}}
-            ]).get();
+
+        return new Promise<Media>((resolve, reject) => {
+            mediaCollection
+                .aggregate([
+                    {$sample: {size: 1}}
+                ]).get((err: any, result: Media[]) => {
+
+                if (result) {
+                    resolve(result[0]);
+                } else {
+                    resolve();
+                }
+            });
+        });
+
     }
 }
