@@ -123,7 +123,10 @@ export class MediaService {
         return new Promise((resolve) => {
             const extension = file.name.split('.').pop();
 
-            if (!extension || !MediaService.MEDIA_TYPES.includes(extension.toUpperCase())) {
+            if (!extension ||
+                !MediaService.MEDIA_TYPES.includes(extension.toUpperCase()) ||
+                file.name.startsWith('.')) {
+
                 debug('Ignoring media file: %s', file.name);
                 resolve();
             } else {
